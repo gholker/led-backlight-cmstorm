@@ -120,13 +120,13 @@ int main(int argc, const char *argv[]) {
 
     // create a IO HID Manager reference
     IOHIDManagerRef tIOHIDManagerRef = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
-    require(tIOHIDManagerRef, Oops);
+    //require(tIOHIDManagerRef, Oops);
 
     // Create a device matching dictionary
     CFDictionaryRef matchingCFDictRef = hu_CreateMatchingDictionaryUsagePageUsage(TRUE,
             kHIDPage_GenericDesktop,
             kHIDUsage_GD_Keyboard);
-    require(matchingCFDictRef, Oops);
+    //require(matchingCFDictRef, Oops);
 
     // set the HID device matching dictionary
     IOHIDManagerSetDeviceMatching(tIOHIDManagerRef, matchingCFDictRef);
@@ -137,11 +137,11 @@ int main(int argc, const char *argv[]) {
 
     // Now open the IO HID Manager reference
     IOReturn tIOReturn = IOHIDManagerOpen(tIOHIDManagerRef, kIOHIDOptionsTypeNone);
-    require_noerr(tIOReturn, Oops);
+    //require_noerr(tIOReturn, Oops);
 
     // and copy out its devices
     CFSetRef deviceCFSetRef = IOHIDManagerCopyDevices(tIOHIDManagerRef);
-    require(deviceCFSetRef, Oops);
+    //require(deviceCFSetRef, Oops);
 
     // how many devices in the set?
     CFIndex deviceIndex, deviceCount = CFSetGetCount(deviceCFSetRef);
@@ -161,7 +161,7 @@ int main(int argc, const char *argv[]) {
 
     // before we get into the device loop we'll setup our element matching dictionary
     matchingCFDictRef = hu_CreateMatchingDictionaryUsagePageUsage(FALSE, kHIDPage_LEDs, 0);
-    require(matchingCFDictRef, Oops);
+    //require(matchingCFDictRef, Oops);
 
     int pass;    // do 256 passes
     int goodpass = 5;
@@ -182,7 +182,7 @@ int main(int argc, const char *argv[]) {
             CFArrayRef elementCFArrayRef = IOHIDDeviceCopyMatchingElements(tIOHIDDeviceRefs[deviceIndex],
                     matchingCFDictRef,
                     kIOHIDOptionsTypeNone);
-            require(elementCFArrayRef, next_device);
+      //      require(elementCFArrayRef, next_device);
 
             // for each device on the system these values are divided by the value ranges of all LED elements found
             // for example, if the first four LED element have a range of 0-1 then the four least significant bits of
@@ -194,7 +194,7 @@ int main(int argc, const char *argv[]) {
             if (elementCount == 3) { // because the mac internal keyboard has 5 and the CM Storm has 3
                 for (elementIndex = 0; elementIndex < elementCount; elementIndex++) {
                     IOHIDElementRef tIOHIDElementRef = (IOHIDElementRef) CFArrayGetValueAtIndex(elementCFArrayRef, elementIndex);
-                    require(tIOHIDElementRef, next_element);
+        //            require(tIOHIDElementRef, next_element);
 
                     uint32_t usagePage = IOHIDElementGetUsagePage(tIOHIDElementRef);
 
@@ -228,7 +228,7 @@ int main(int argc, const char *argv[]) {
                         // now set it on the device
                         tIOReturn = IOHIDDeviceSetValue(tIOHIDDeviceRefs[deviceIndex], tIOHIDElementRef, tIOHIDValueRef);
                         CFRelease(tIOHIDValueRef);
-                        require_noerr(tIOReturn, next_element);
+          //              require_noerr(tIOReturn, next_element);
                         delayFlag = TRUE;    // set this TRUE so we'll delay before changing our LED values again
                     }
                     next_element:;
