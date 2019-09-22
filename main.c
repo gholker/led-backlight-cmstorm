@@ -65,6 +65,9 @@
 #pragma mark -
 #pragma mark * typedef's, struct's, enums, defines, etc. *
 
+#define require(value, location) if (value == 0) goto location;
+#define require_noerr(value, location) if (value != 0) goto location;
+
 // ----------------------------------------------------
 // function to create a matching dictionary for usage page & usage
 static CFMutableDictionaryRef hu_CreateMatchingDictionaryUsagePageUsage(Boolean isDeviceNotElement,
@@ -145,6 +148,7 @@ int main(int argc, const char *argv[]) {
 
     // how many devices in the set?
     CFIndex deviceIndex, deviceCount = CFSetGetCount(deviceCFSetRef);
+    printf("found %ld devices\n", deviceCount);
 
     // allocate a block of memory to extact the device ref's from the set into
     tIOHIDDeviceRefs = malloc(sizeof(IOHIDDeviceRef) * deviceCount);
@@ -182,7 +186,9 @@ int main(int argc, const char *argv[]) {
             CFArrayRef elementCFArrayRef = IOHIDDeviceCopyMatchingElements(tIOHIDDeviceRefs[deviceIndex],
                     matchingCFDictRef,
                     kIOHIDOptionsTypeNone);
-            require(elementCFArrayRef, next_device);
+            if (!elementCFArrayRef) {
+                continue;
+            }
 
             // for each device on the system these values are divided by the value ranges of all LED elements found
             // for example, if the first four LED element have a range of 0-1 then the four least significant bits of
@@ -194,7 +200,9 @@ int main(int argc, const char *argv[]) {
             if (elementCount == 3) { // because the mac internal keyboard has 5 and the CM Storm has 3
                 for (elementIndex = 0; elementIndex < elementCount; elementIndex++) {
                     IOHIDElementRef tIOHIDElementRef = (IOHIDElementRef) CFArrayGetValueAtIndex(elementCFArrayRef, elementIndex);
-                    require(tIOHIDElementRef, next_element);
+                    if (!tIOHIDElementRef) {
+                        continue;
+                    }
 
                     uint32_t usagePage = IOHIDElementGetUsagePage(tIOHIDElementRef);
 
@@ -235,8 +243,7 @@ int main(int argc, const char *argv[]) {
                     continue;
                 }
             }
-            CFRelease(elementCFArrayRef);
-            next_device:;
+            CFRelease(elementCFArrayRef);            
             continue;
         }
 
