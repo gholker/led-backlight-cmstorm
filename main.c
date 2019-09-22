@@ -60,6 +60,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <Carbon/Carbon.h>
 #include <IOKit/hid/IOHIDLib.h>
+#include <libgen.h>
 
 // ****************************************************
 #pragma mark -
@@ -120,7 +121,9 @@ static CFMutableDictionaryRef hu_CreateMatchingDictionaryUsagePageUsage(Boolean 
 int main(int argc, const char *argv[]) {
 #pragma unused ( argc, argv )
     IOHIDDeviceRef *tIOHIDDeviceRefs = nil;
-    
+    char *path = dirname(argv[0]);
+    char config_path[1024];
+    sprintf(config_path, "%s/led-backlight-cmstorm.cfg", path);
     // create a IO HID Manager reference
     IOHIDManagerRef tIOHIDManagerRef = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
     require(tIOHIDManagerRef, Oops);
@@ -177,7 +180,7 @@ int main(int argc, const char *argv[]) {
     
     
     
-    FILE *fp = fopen("cmstorm_config.cfg", "r");
+    FILE *fp = fopen(config_path, "r");
     if (fp) {
         char *line = NULL;
         size_t len;
@@ -187,10 +190,11 @@ int main(int argc, const char *argv[]) {
             int goodpass = atoi(line);
             start = goodpass;
             end = goodpass + 1;
+            printf("Using config at path: %s\n", config_path);
         }
         fclose(fp);
     } else {
-        printf("cmstorm_config.cfg not found. Cycling through possible values.\n");
+        printf("%s not found. Cycling through possible values.\n", config_path);
     }
     
     
@@ -205,7 +209,7 @@ int main(int argc, const char *argv[]) {
                 continue;    // ...skip it
             }
             
-            printf("	 device = %p.\n", tIOHIDDeviceRefs[deviceIndex]);
+            //            printf("	 device = %p.\n", tIOHIDDeviceRefs[deviceIndex]);
             
             // copy all the elements
             CFArrayRef elementCFArrayRef = IOHIDDeviceCopyMatchingElements(tIOHIDDeviceRefs[deviceIndex],
@@ -236,11 +240,11 @@ int main(int argc, const char *argv[]) {
                         continue;    // ...skip it
                     }
                     
-                    uint32_t usage = IOHIDElementGetUsage(tIOHIDElementRef);
-                    IOHIDElementType tIOHIDElementType = IOHIDElementGetType(tIOHIDElementRef);
+                    //                    uint32_t usage = IOHIDElementGetUsage(tIOHIDElementRef);
+                    //                    IOHIDElementType tIOHIDElementType = IOHIDElementGetType(tIOHIDElementRef);
                     
-                    printf("		 element = %p (page: %d, usage: %d, type: %d ).\n",
-                           tIOHIDElementRef, usagePage, usage, tIOHIDElementType);
+                    //                    printf("		 element = %p (page: %d, usage: %d, type: %d ).\n",
+                    //                           tIOHIDElementRef, usagePage, usage, tIOHIDElementType);
                     
                     // get the logical mix/max for this LED element
                     CFIndex minCFIndex = IOHIDElementGetLogicalMin(tIOHIDElementRef);
@@ -253,7 +257,7 @@ int main(int argc, const char *argv[]) {
                     CFIndex tCFIndex = minCFIndex + (device_value % modCFIndex);
                     device_value /= modCFIndex;
                     
-                    printf("			 value = 0x%08lX.\n", tCFIndex);
+                    //                    printf("			 value = 0x%08lX.\n", tCFIndex);
                     
                     uint64_t timestamp = 0; // create the IO HID Value to be sent to this LED element
                     IOHIDValueRef tIOHIDValueRef = IOHIDValueCreateWithIntegerValue(kCFAllocatorDefault, tIOHIDElementRef, timestamp, tCFIndex);
@@ -276,10 +280,10 @@ int main(int argc, const char *argv[]) {
         if (!fromFile){
             printf("is this value good? (y/n)\n");
             fgets(buffer, sizeof(buffer), stdin);
-//            printf("buffer=`%s`\n", buffer);
+            //            printf("buffer=`%s`\n", buffer);
             if (buffer[0] == 'y') {
                 printf("saving configuration\n");
-                fp = fopen("cmstorm_config.cfg", "w");
+                fp = fopen(config_path, "w");
                 fprintf(fp, "%d\n", pass);
                 fclose(fp);
                 break;
