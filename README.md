@@ -1,6 +1,6 @@
 # 👋
 
-I'm curious if anyone still uses this. Feel free to lmk by emailing me here graham@grahamholker.com
+I'm curious if anyone still uses this. Please let me know by emailing me here graham@grahamholker.com
 
 # CMStorm LED Backlight
 
