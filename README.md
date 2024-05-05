@@ -42,4 +42,13 @@ y
 saving configuration
 ```
 
+## Compatibility 
 
+### Keyboards
+
+Reported working:
+- Unlocked Lvl™ Wired LED Round Key Gaming Keyboard (e.g. https://www.fivebelow.com/products/unlocked-lvl-wired-led-round-key-gaming-keyboard)
+
+### Operating System
+
+It needs to be updated for new versions of MacOS. A proper signing key and a dev account may be necessary. 
